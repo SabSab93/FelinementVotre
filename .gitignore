@@ -1,4 +1,9 @@
 
+.env
+.env.dev
+.env.test
+.gitignore
+
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
