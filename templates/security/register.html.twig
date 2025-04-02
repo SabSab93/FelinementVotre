@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+    <h2>Inscription</h2>
+    <form id="register-form" method="POST">
+        <label for="name">Nom :</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="email">Email :</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="password">Mot de passe :</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">S'inscrire</button>
+    </form>
+
+    <script>
+        // Récupère le formulaire et l'ajoute à un événement de soumission
+        document.getElementById('register-form').addEventListener('submit', async function(event) {
+            event.preventDefault();  // Empêche la soumission classique du formulaire
+
+            // Récupère les données du formulaire
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());  // Convertit les données du formulaire en un objet
+
+            try {
+                // Utilise fetch pour envoyer une requête POST
+                const response = await fetch('{{ path('app_register') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),  // Envoie les données en JSON
+                });
+
+                // Vérifie si la requête a réussi
+                if (response.ok) {
+                    alert('Inscription réussie !');
+                    window.location.href = '/'; // Redirige après inscription réussie
+                } else {
+                    const errorText = await response.text();
+                    alert('Erreur : ' + errorText);
+                }
+            } catch (error) {
+                console.error('Erreur lors de l\'inscription :', error);
+                alert('Une erreur est survenue. Veuillez réessayer.');
+            }
+        });
+    </script>
+{% endblock %}
