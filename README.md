@@ -12,4 +12,12 @@ Après des années de réflexion (et quelques miaulements), je vous présente F�
 Ici, nos matous peuvent choisir leur partenaire idéal, selon leurs préférences… et pourquoi pas, enfin matcher avec celui qui fera vibrer leur petit cœur de chat !
 
 Avec FélinementVôtre, rencontre ton félin près de chez toi grrrrrr
- 
+
+
+## Initialisation du projet :
+    - cloner le projet
+    - npm i
+    - 
+
+
+## Generer des données :
