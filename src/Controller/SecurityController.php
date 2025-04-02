@@ -49,10 +49,8 @@ class SecurityController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        // Log de succès
-        dump('Utilisateur créé avec succès !');
+        return new JsonResponse(['message' => 'Utilisateur créé avec succès', 'redirect' => $this->generateUrl('app_list_cats')], Response::HTTP_CREATED);
 
-        return new Response('Utilisateur créé avec succès !', Response::HTTP_CREATED);
     }
 
 
@@ -61,5 +59,7 @@ public function registerForm(): Response
 {
     return $this->render('security/register.html.twig');
 }
+
+
 
 }

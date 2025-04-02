@@ -57,6 +57,16 @@ class CatsController extends AbstractController
         // Réponse de succès
         return $this->json(['message' => 'Chat ajouté avec succès.'], 200);
     }
+
+    #[Route('/cats', name: 'app_list_cats', methods: ['GET'])]
+public function listCats(): Response
+{
+    $cats = $this->entityManager->getRepository(Cats::class)->findAll();
+
+    return $this->render('cats/list.html.twig', [
+        'cats' => $cats,
+    ]);
+}
 }
 
 

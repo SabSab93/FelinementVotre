@@ -19,35 +19,32 @@
 
     <script>
         // Récupère le formulaire et l'ajoute à un événement de soumission
-        document.getElementById('register-form').addEventListener('submit', async function(event) {
-            event.preventDefault();  // Empêche la soumission classique du formulaire
+document.getElementById('register-form').addEventListener('submit', async function(event) {
+    event.preventDefault();  
 
-            // Récupère les données du formulaire
-            const formData = new FormData(event.target);
-            const data = Object.fromEntries(formData.entries());  // Convertit les données du formulaire en un objet
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
 
-            try {
-                // Utilise fetch pour envoyer une requête POST
-                const response = await fetch('{{ path('app_register') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),  // Envoie les données en JSON
-                });
-
-                // Vérifie si la requête a réussi
-                if (response.ok) {
-                    alert('Inscription réussie !');
-                    window.location.href = '/'; // Redirige après inscription réussie
-                } else {
-                    const errorText = await response.text();
-                    alert('Erreur : ' + errorText);
-                }
-            } catch (error) {
-                console.error('Erreur lors de l\'inscription :', error);
-                alert('Une erreur est survenue. Veuillez réessayer.');
-            }
+    try {
+        const response = await fetch('{{ path('app_register') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
         });
+
+        if (response.ok) {
+            const responseData = await response.json();
+            window.location.href = responseData.redirect; // Redirection après succès
+        } else {
+            const errorData = await response.json();
+            alert('Erreur : ' + errorData.message);
+        }
+    } catch (error) {
+        console.error('Erreur lors de l\'inscription :', error);
+        alert('Une erreur est survenue. Veuillez réessayer.');
+    }
+});
     </script>
 {% endblock %}
