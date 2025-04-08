@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Entity;
 
 use App\Repository\CatsRepository;
@@ -23,17 +24,25 @@ class Cats
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $breed = null;
 
-    #[ORM\Column(type: 'string', enumType: Gender::class)] // Ajout du champ gender avec l'énumération
-    private ?Gender $gender = null;
+    #[ORM\Column(type: "string")]
+    private ?string $gender = null; // Stocke la valeur sous forme de chaîne
 
     #[ORM\ManyToOne(inversedBy: 'cats')]
-    private ?Users $user = null; // Le type Gender correspond à l'énumération
+    private ?Users $user = null;
 
-    public function getId(): ?int
+    // Getter et Setter pour `gender`
+    public function getGender(): ?Gender
     {
-        return $this->id;
+        return Gender::from($this->gender);; // Convertir la chaîne en énumération Gender
     }
 
+    public function setGender(Gender $gender): static
+    {
+        $this->gender = $gender->value; // Enregistrer la valeur de l'énum comme une chaîne
+        return $this;
+    }
+
+    // Getter et Setter pour `name`
     public function getName(): ?string
     {
         return $this->name;
@@ -42,10 +51,10 @@ class Cats
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
+    // Getter et Setter pour `age`
     public function getAge(): ?int
     {
         return $this->age;
@@ -54,10 +63,10 @@ class Cats
     public function setAge(int $age): static
     {
         $this->age = $age;
-
         return $this;
     }
 
+    // Getter et Setter pour `breed`
     public function getBreed(): ?string
     {
         return $this->breed;
@@ -66,22 +75,10 @@ class Cats
     public function setBreed(?string $breed): static
     {
         $this->breed = $breed;
-
         return $this;
     }
 
-    public function getGender(): ?Gender
-    {
-        return $this->gender;
-    }
-
-    public function setGender(Gender $gender): static
-    {
-        $this->gender = $gender;
-
-        return $this;
-    }
-
+    // Getter et Setter pour `user`
     public function getUser(): ?Users
     {
         return $this->user;
@@ -90,7 +87,6 @@ class Cats
     public function setUser(?Users $user): static
     {
         $this->user = $user;
-
         return $this;
     }
 }

@@ -14,10 +14,10 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        # Firewall public pour les pages accessibles sans authentification
-        public:
-            pattern: ^/(login|register)
-            security: false
+        # # Firewall public pour les pages accessibles sans authentification
+        # public:
+        #     pattern: ^/(login|register)
+        #     security: false
 
         # Firewall principal pour le reste du site
         main:

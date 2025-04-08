@@ -68,23 +68,24 @@ class SecurityController extends AbstractController
         return $this->render('security/register.html.twig');
     }
 
-    #[Route('/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    #[Route('/login', name: 'app_login', methods: ['GET','POST'])]
+    public function login(Request $request, AuthenticationUtils $authenticationUtils)
     {
-        // Si l'utilisateur est déjà connecté, redirige-le vers la page protégée
         if ($this->getUser()) {
+            // Redirect if the user is already logged in
             return $this->redirectToRoute('app_felinementvotre');
         }
 
-        // Récupère l'erreur d'authentification et le dernier username (pour préremplir le formulaire)
+        // Get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
-            'error'         => $error,
+            'error' => $error,
         ]);
     }
+
 }
 
 
