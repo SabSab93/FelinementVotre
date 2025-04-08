@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {% if app.user %}
+        Bienvenue, {{ app.user.name }}!
+    {% else %}
+        Bienvenue sur FélinementVôtre!
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    {% if app.user %}
+        <h1 class="mb-4">Bienvenue, {{ app.user.name }}!</h1>
+        <div class="alert alert-info">
+            <strong>Votre compte</strong> : 
+            <a href="{{ path('app_update_account') }}">Mettre à jour mon compte</a>
+        </div>
+        <div class="mt-4">
+            <h3>Gérer vos chats :</h3>
+            <a href="{{ path('app_list_cats') }}" class="btn btn-info">Voir la liste de mes chats</a>
+            <a href="{{ path('app_add_cat_form') }}" class="btn btn-success">Ajouter un chat</a>
+        </div>
+    {% else %}
+        <h1 class="mb-4">Bienvenue, visitez notre site pour vous inscrire et découvrir nos services!</h1>
+    {% endif %}
+</div>
+
+<script>
+    {% if app.user %}
+        console.log('Contenu de app.user:', {{ app.user|json_encode()|raw }});
+    {% else %}
+        console.log('Aucun utilisateur connecté.');
+    {% endif %}
+</script>
+{% endblock %}

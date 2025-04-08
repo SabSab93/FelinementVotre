@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Chats{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2 class="mb-4">Liste de vos chats</h2>
+    <ul class="list-group">
+        {% for cat in cats %}
+            <li class="list-group-item">
+                <strong>{{ cat.name }}</strong> - {{ cat.age }} ans - {{ cat.breed }}
+                ({{ cat.gender|default('Non spécifié') }})
+                <a href="{{ path('app_update_cat_form', {'id': cat.id}) }}" class="btn btn-warning btn-sm float-end ms-2">Mettre à jour</a>
+            </li>
+        {% else %}
+            <li class="list-group-item">Aucun chat enregistré pour le moment.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

@@ -3,46 +3,52 @@
 {% block title %}Inscription{% endblock %}
 
 {% block body %}
-    <h2>Inscription</h2>
-    <form id="register-form" method="POST">
-        <label for="name">Nom :</label>
-        <input type="text" id="name" name="name" required>
+<div class="container mt-5">
+    <h2 class="mb-4">Inscription</h2>
+    <form id="register-form" method="POST" class="needs-validation" novalidate>
+        <div class="mb-3">
+            <label for="name" class="form-label">Nom :</label>
+            <input type="text" id="name" name="name" class="form-control" required>
+            <div class="invalid-feedback">Veuillez entrer votre nom.</div>
+        </div>
 
-        <label for="email">Email :</label>
-        <input type="email" id="email" name="email" required>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email :</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+            <div class="invalid-feedback">Veuillez entrer un email valide.</div>
+        </div>
 
-        <label for="password">Mot de passe :</label>
-        <input type="password" id="password" name="password" required>
+        <div class="mb-3">
+            <label for="password" class="form-label">Mot de passe :</label>
+            <input type="password" id="password" name="password" class="form-control" required>
+            <div class="invalid-feedback">Veuillez entrer un mot de passe.</div>
+        </div>
 
-        <button type="submit">S'inscrire</button>
+        <button type="submit" class="btn btn-primary">S'inscrire</button>
     </form>
 
     <script>
-        // Récupère le formulaire et l'ajoute à un événement de soumission
         document.getElementById('register-form').addEventListener('submit', async function(event) {
-            event.preventDefault();  // Empêche la soumission classique du formulaire
+            event.preventDefault();
 
-            // Récupère les données du formulaire
             const formData = new FormData(event.target);
-            const data = Object.fromEntries(formData.entries());  // Convertit les données du formulaire en un objet
+            const data = Object.fromEntries(formData.entries());
 
             try {
-                // Utilise fetch pour envoyer une requête POST
                 const response = await fetch('{{ path('app_register') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(data),  // Envoie les données en JSON
+                    body: JSON.stringify(data),
                 });
 
-                // Vérifie si la requête a réussi
                 if (response.ok) {
-                    alert('Inscription réussie !');
-                    window.location.href = '/'; // Redirige après inscription réussie
+                    const responseData = await response.json();
+                    window.location.href = responseData.redirect;
                 } else {
-                    const errorText = await response.text();
-                    alert('Erreur : ' + errorText);
+                    const errorData = await response.json();
+                    alert('Erreur : ' + errorData.message);
                 }
             } catch (error) {
                 console.error('Erreur lors de l\'inscription :', error);
@@ -50,4 +56,5 @@
             }
         });
     </script>
+</div>
 {% endblock %}
