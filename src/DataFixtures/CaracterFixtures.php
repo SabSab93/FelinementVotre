@@ -26,6 +26,11 @@ class CaracterFixtures extends Fixture
             'Adore les caresses... parfois',
             'Maître du regard méprisant',
             'Fait pipi hors de la litière par vengeance',
+            'Dompteur de chaussettes',
+            'Roi des miaulements inutiles',
+            'Fait la sieste sur le clavier',
+            'Alerte croquettes permanente',
+            'Ne répond jamais quand on l’appelle',
         ];
 
         foreach ($caracteres as $label) {

@@ -1,3 +1,4 @@
+# config/packages/security.yaml
 security:
     password_hashers:
         App\Entity\Users:
@@ -14,26 +15,36 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        # GET /login sans auth
+        login_get:
+            pattern: ^/login$
+            methods: [GET]
+            security: false
+
+        # GET /register sans auth
+        register_get:
+            pattern: ^/register$
+            methods: [GET]
+            security: false
+
         main:
+            pattern: ^/
             lazy: true
             provider: app_user_provider
-            custom_authenticator: App\Security\AppCustomAuthenticator
+
+            # ← Remplace `custom_authenticator` par `custom_authenticators`
+            custom_authenticators:
+                - App\Security\AppCustomAuthenticator
+
             logout:
-                path: app_logout
+                path:   app_logout
                 target: /login
+
             remember_me:
-                secret: '%kernel.secret%'
-                lifetime: 604800 # 1 semaine
-                path: /
+                secret:   '%kernel.secret%'
+                lifetime: 604800
+                path:     /
 
     access_control:
-        # Pages accessibles sans connexion
-        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-
-        # Pages nécessitant une authentification
         - { path: ^/felinementvotre, roles: ROLE_USER }
-        - { path: ^/cats, roles: ROLE_USER }
-
-        # Par défaut, tout le reste nécessite d'être connecté
-        - { path: ^/, roles: ROLE_USER }
+        - { path: ^/cats,            roles: ROLE_USER }

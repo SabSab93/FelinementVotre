@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}🚫 Limite atteinte 🚫{% endblock %}
+
+{% block stylesheets %}
+<style>
+  body {
+    background: #fff0f6;
+  }
+  .alert-card {
+    max-width: 400px;
+    margin: 4rem auto;
+    padding: 2rem;
+    background: #ffeef8;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    text-align: center;
+  }
+  .alert-card h2 {
+    color: #e55353;
+    margin-bottom: 1rem;
+  }
+  .btn-kawaii {
+    background-color: #ffb6c1;
+    color: white;
+    border-radius: .75rem;
+    padding: .5rem 1.5rem;
+    font-weight: bold;
+  }
+  .btn-kawaii:hover {
+    background-color: #ff69b4;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="alert-card">
+  <h2>🚫 Oups !</h2>
+  <p>{{ message }}</p>
+  <a href="{{ path('app_add_cat_form') }}" class="btn-kawaii mt-3">Retour au formulaire</a>
+</div>
+{% endblock %}
