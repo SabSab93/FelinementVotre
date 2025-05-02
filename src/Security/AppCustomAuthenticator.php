@@ -15,16 +15,17 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordC
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-
+use Symfony\Component\Routing\RouterInterface; 
 class AppCustomAuthenticator extends AbstractAuthenticator
 {
     private $entityManager;
+    private RouterInterface $router;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router)
     {
         $this->entityManager = $entityManager;
+        $this->router = $router;
     }
-
     public function supports(Request $request): ?bool
     {
         // On authentifie uniquement sur la route /login (POST)
@@ -45,8 +46,8 @@ class AppCustomAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        // Redirige vers la page "FélinementVôtre" après une authentification réussie
-        return new RedirectResponse('/felinementvotre');
+        $targetUrl = $this->router->generate('app_felinementvotre'); // ← utilise la route Symfony
+        return new RedirectResponse($targetUrl);
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response

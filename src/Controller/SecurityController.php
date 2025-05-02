@@ -1,5 +1,7 @@
 <?php
 
+// src/Controller/SecurityController.php
+
 namespace App\Controller;
 
 use App\Entity\Users;
@@ -14,52 +16,45 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    // Injection de l'EntityManagerInterface via le constructeur
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
     }
 
-    #[Route('/felinementvotre', name: 'app_felinementvotre')]
-    public function felinementVoter(): Response
-    {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
-        }
-        return $this->render('home/felinementvotre.html.twig', [
-            'user' => $user,
-        ]);
-    }
-
     #[Route('/register', name: 'app_register', methods: ['POST'])]
-    public function register(
-        Request $request, 
-        UserPasswordHasherInterface $passwordHasher
-    ): Response {
-        $data = json_decode($request->getContent(), true);
+    public function register(Request $request, UserPasswordHasherInterface $passwordHasher): Response
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
 
-        if (!is_array($data) || !isset($data['name'], $data['email'], $data['password'])) {
-            return new Response('Données invalides', Response::HTTP_BAD_REQUEST);
+            if (!is_array($data) || !isset($data['name'], $data['email'], $data['password'])) {
+                return new JsonResponse(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $existingUser = $this->entityManager->getRepository(Users::class)->findOneBy(['email' => $data['email']]);
+
+            if ($existingUser) {
+                return new JsonResponse(['message' => 'Cet email est deja utilise.'], Response::HTTP_CONFLICT);
+            }
+
+            $user = new Users();
+            $user->setName($data['name']);
+            $user->setEmail($data['email']);
+            $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
+            $user->setCreatedAt(new \DateTimeImmutable());
+
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+
+            return new JsonResponse([
+                'message' => 'Utilisateur créé avec succès',
+                'redirect' => $this->generateUrl('app_login')
+            ], Response::HTTP_CREATED);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['message' => 'Erreur serveur : ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $user = new Users();
-        $user->setName($data['name']);
-        $user->setEmail($data['email']);
-
-        $hashedPassword = $passwordHasher->hashPassword($user, $data['password']);
-        $user->setPassword($hashedPassword);
-        $user->setCreatedAt(new \DateTimeImmutable());
-
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
-
-        return new JsonResponse([
-            'message' => 'Utilisateur créé avec succès', 
-            'redirect' => $this->generateUrl('app_felinementvotre')
-        ], Response::HTTP_CREATED);
     }
 
     #[Route('/register', name: 'app_register_form', methods: ['GET'])]
@@ -68,24 +63,22 @@ class SecurityController extends AbstractController
         return $this->render('security/register.html.twig');
     }
 
-    #[Route('/login', name: 'app_login')]
+    #[Route('/login', name: 'app_login', methods: ['GET', 'POST'])]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // Si l'utilisateur est déjà connecté, redirige-le vers la page protégée
         if ($this->getUser()) {
             return $this->redirectToRoute('app_felinementvotre');
         }
 
-        // Récupère l'erreur d'authentification et le dernier username (pour préremplir le formulaire)
-        $error = $authenticationUtils->getLastAuthenticationError();
-        $lastUsername = $authenticationUtils->getLastUsername();
-
         return $this->render('security/login.html.twig', [
-            'last_username' => $lastUsername,
-            'error'         => $error,
+            'last_username' => $authenticationUtils->getLastUsername(),
+            'error' => $authenticationUtils->getLastAuthenticationError(),
         ]);
     }
+
+    #[Route('/logout', name: 'app_logout')]
+    public function logout(): void
+    {
+        throw new \Exception('This should never be reached!');
+    }
 }
-
-
-

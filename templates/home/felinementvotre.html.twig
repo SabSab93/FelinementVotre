@@ -12,10 +12,12 @@
 <div class="container mt-5">
     {% if app.user %}
         <h1 class="mb-4">Bienvenue, {{ app.user.name }}!</h1>
-        <div class="alert alert-info">
-            <strong>Votre compte</strong> : 
-            <a href="{{ path('app_update_account') }}">Mettre à jour mon compte</a>
-        </div>
+
+        {# Bouton de déconnexion #}
+        <form action="{{ path('app_logout') }}" method="post" style="display: inline;">
+            <button type="submit" class="btn btn-danger">Déconnexion</button>
+        </form>
+
         <div class="mt-4">
             <h3>Gérer vos chats :</h3>
             <a href="{{ path('app_list_cats') }}" class="btn btn-info">Voir la liste de mes chats</a>

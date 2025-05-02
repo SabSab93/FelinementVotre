@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\CatsRepository;
 use App\Enum\Gender;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: CatsRepository::class)]
 class Cats
@@ -23,15 +25,42 @@ class Cats
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $breed = null;
 
-    #[ORM\Column(type: 'string', enumType: Gender::class)] // Ajout du champ gender avec l'énumération
-    private ?Gender $gender = null;
+    #[ORM\Column(type: "string")]
+    private ?string $gender = null;
 
     #[ORM\ManyToOne(inversedBy: 'cats')]
-    private ?Users $user = null; // Le type Gender correspond à l'énumération
+    private ?Users $user = null;
+
+    #[ORM\Column(type: "text", nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\Column(type: "integer", nullable: true)]
+    private ?int $imageId = null;
+
+    #[ORM\ManyToMany(targetEntity: Caractere::class, inversedBy: 'cats')]
+    private Collection $caracteres;
+
+    public function __construct()
+    {
+        $this->caracteres = new ArrayCollection();
+    }
+
+    // ------------------ GETTERS & SETTERS ------------------ //
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getGender(): ?Gender
+    {
+        return $this->gender ? Gender::from($this->gender) : null;
+    }
+
+    public function setGender(Gender $gender): static
+    {
+        $this->gender = $gender->value;
+        return $this;
     }
 
     public function getName(): ?string
@@ -42,7 +71,6 @@ class Cats
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -54,7 +82,6 @@ class Cats
     public function setAge(int $age): static
     {
         $this->age = $age;
-
         return $this;
     }
 
@@ -66,19 +93,6 @@ class Cats
     public function setBreed(?string $breed): static
     {
         $this->breed = $breed;
-
-        return $this;
-    }
-
-    public function getGender(): ?Gender
-    {
-        return $this->gender;
-    }
-
-    public function setGender(Gender $gender): static
-    {
-        $this->gender = $gender;
-
         return $this;
     }
 
@@ -90,7 +104,51 @@ class Cats
     public function setUser(?Users $user): static
     {
         $this->user = $user;
+        return $this;
+    }
 
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    public function getImageId(): ?int
+    {
+        return $this->imageId;
+    }
+
+    public function setImageId(?int $imageId): static
+    {
+        $this->imageId = $imageId;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Caractere>
+     */
+    public function getCaracteres(): Collection
+    {
+        return $this->caracteres;
+    }
+
+    public function addCaractere(Caractere $caractere): static
+    {
+        if (!$this->caracteres->contains($caractere)) {
+            $this->caracteres->add($caractere);
+        }
+
+        return $this;
+    }
+
+    public function removeCaractere(Caractere $caractere): static
+    {
+        $this->caracteres->removeElement($caractere);
         return $this;
     }
 }

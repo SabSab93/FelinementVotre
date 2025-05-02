@@ -5,7 +5,10 @@
 {% block body %}
 <div class="container mt-5">
     <h2 class="mb-4">Inscription</h2>
-    <form id="register-form" method="POST" class="needs-validation" novalidate>
+
+    <div id="alert-container"></div>
+
+    <form id="register-form" class="needs-validation" novalidate>
         <div class="mb-3">
             <label for="name" class="form-label">Nom :</label>
             <input type="text" id="name" name="name" class="form-control" required>
@@ -31,7 +34,15 @@
         document.getElementById('register-form').addEventListener('submit', async function(event) {
             event.preventDefault();
 
-            const formData = new FormData(event.target);
+            const form = event.target;
+
+            // Validation Bootstrap
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
 
             try {
@@ -43,16 +54,23 @@
                     body: JSON.stringify(data),
                 });
 
+                const alertContainer = document.getElementById('alert-container');
+                alertContainer.innerHTML = '';
+
                 if (response.ok) {
                     const responseData = await response.json();
                     window.location.href = responseData.redirect;
                 } else {
-                    const errorData = await response.json();
-                    alert('Erreur : ' + errorData.message);
+                    const res = await response.json();
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            ${res.message ?? 'Une erreur est survenue.'}
+                        </div>
+                    `;
                 }
             } catch (error) {
                 console.error('Erreur lors de l\'inscription :', error);
-                alert('Une erreur est survenue. Veuillez réessayer.');
+                alert('Erreur réseau. Veuillez réessayer.');
             }
         });
     </script>

@@ -14,78 +14,26 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        # Firewall public pour les pages accessibles sans authentification
-        public:
-            pattern: ^/(login|register)
-            security: false
-
-        # Firewall principal pour le reste du site
         main:
-            pattern: ^/
+            lazy: true
+            provider: app_user_provider
             custom_authenticator: App\Security\AppCustomAuthenticator
             logout:
                 path: app_logout
                 target: /login
-            provider: app_user_provider
-            stateless: false
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800 # 1 semaine
+                path: /
 
     access_control:
-        # Routes protégées nécessitant une authentification
+        # Pages accessibles sans connexion
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        # Pages nécessitant une authentification
         - { path: ^/felinementvotre, roles: ROLE_USER }
         - { path: ^/cats, roles: ROLE_USER }
-        # Les routes /login et /register sont gérées par le firewall public, donc accessibles anonymement
 
-
-
-
-
-
-
-
-
-
-# security:
-#     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
-#     password_hashers:
-#         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
-    
-#     # Providers : Charger les utilisateurs à partir de la base de données
-#     providers:
-#         users_in_db:
-#             entity:
-#                 class: App\Entity\Users
-#                 property: email
-
-#     firewalls:
-#         dev:
-#             pattern: ^/(_(profiler|wdt)|css|images|js)/
-#             security: false
-        
-#         main:
-#             # Utilisation de ton authentificateur personnalisé
-#             custom_authenticator: App\Security\AppCustomAuthenticator
-#             logout:
-#                 path: app_logout
-
-#     # Routes protégées en fonction des rôles
-#     access_control:
-#         # Accès à "FélinementVôtre" pour les utilisateurs authentifiés
-#         - { path: ^/felinementvotre, roles: ROLE_USER }
-#         # Accès à "cats" pour les utilisateurs authentifiés
-#         - { path: ^/cats, roles: ROLE_USER }
-#         # Route de login accessible à tous
-#         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-#         - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-
-# when@test:
-#     security:
-#         password_hashers:
-#             # By default, password hashers are resource intensive and take time. This is
-#             # important to generate secure password hashes. In tests however, secure hashes
-#             # are not important, waste resources and increase test times. The following
-#             # reduces the work factor to the lowest possible values.
-#             Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
-#                 algorithm: auto
-#                 cost: 4 # Lowest possible value for bcrypt
-#                 time_cost: 3 # Lowest possible value for argon
-#                 memory_cost: 10 # Lowest possible value for argon
+        # Par défaut, tout le reste nécessite d'être connecté
+        - { path: ^/, roles: ROLE_USER }

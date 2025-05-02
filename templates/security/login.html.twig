@@ -3,7 +3,7 @@
 {% block title %}Log in!{% endblock %}
 
 {% block body %}
-<form method="post">
+<form method="post" action="{{ path('app_login') }}">
     {% if error %}
         <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
     {% endif %}
@@ -34,9 +34,6 @@
         Sign in
     </button>
 </form>
-{% if app.user %}
-    <script type="text/javascript">
-        window.location.href = "{{ path('app_felinementvotre') }}";
-    </script>
-{% endif %}
+
 {% endblock %}
+
