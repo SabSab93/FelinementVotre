@@ -17,79 +17,92 @@ Avec **FélinementVôôtre**, rencontre ton félin près de chez toi… grrrrrr 
 
 ---
 
+
 ## 🚀 Initialisation du projet
 
-1. **Récupération du code**  
-   ```bash
-   git clone git@serveur:User/FelinementVotre.git
-   cd FelinementVotre
-   ```
+### 1. Récupération du code source
 
-2. **Installation des dépendances PHP**  
-   ```bash
-   composer install
-   ```
+```bash
+git clone git@ton-serveur:TonUser/FelinementVotre.git
+cd FelinementVotre
+```
 
-3. **Configuration de l’environnement**  
-   ```bash
-   cp .env .env.local
-   ```
-   Puis, ouvre `.env.local` et ajuste la variable `DATABASE_URL` (hôte, port, utilisateur, mot de passe, nom de la DB).
+### 2. Installation des dépendances PHP
 
----
+```bash
+composer install
+```
+
+### 3. Configuration de l’environnement
+
+```bash
+cp .env .env.local
+```
+
+Puis, ouvre `.env.local` et ajuste la variable `DATABASE_URL` (hôte, port, utilisateur, mot de passe, nom de la DB).
 
 ## 🐾 Génération des données
 
-4. **Création de la base de données**  
-   ```bash
-   php bin/console doctrine:database:create
-   ```
+### 4. Création de la base de données
 
-5. **Mise à jour du schéma ou exécution des migrations**  
-   - **Avec migrations Doctrine**  
-     ```bash
-     php bin/console doctrine:migrations:migrate --no-interaction
-     ```
-   - **Sans migrations**  
-     ```bash
-     php bin/console doctrine:schema:update --force
-     ```
+```bash
+php bin/console doctrine:database:create
+```
 
-6. **Chargement des fixtures**  
-   (purge et réinjection des données de test)  
-   ```bash
-   php bin/console doctrine:fixtures:load --purge-with-delete --no-interaction
-   ```
+### 5. Mise à jour du schéma ou exécution des migrations
 
----
+Avec migrations Doctrine :
+
+```bash
+php bin/console doctrine:migrations:migrate --no-interaction
+```
+
+Ou sans migrations :
+
+```bash
+php bin/console doctrine:schema:update --force
+```
+
+### 6. Chargement des fixtures (purge et injection des données de test)
+
+```bash
+php bin/console doctrine:fixtures:load --purge-with-delete --no-interaction
+```
 
 ## 🎨 Assets & cache
 
-7. **(Facultatif) Compilation des assets**  
-   *Si vous utilisez Webpack Encore pour vos JS/CSS*  
-   ```bash
-   npm install    # ou yarn install
-   npm run dev    # ou yarn encore dev
-   ```
+### 7. Compilation des assets (si Webpack Encore est utilisé)
 
-8. **Vider / rafraîchir le cache Symfony**  
-   ```bash
-   php bin/console cache:clear
-   ```
+```bash
+npm install
+npm run dev
+```
 
----
+### 8. Vider / rafraîchir le cache Symfony
+
+```bash
+php bin/console cache:clear
+```
 
 ## ▶️ Lancement du serveur
 
-9. **Démarrer le serveur de développement**  
-   ```bash
-   symfony server:start
-   ```
+### 9. Lancer le serveur avec Docker
 
-10. **Accéder à l’application**  
-    > http://127.0.0.1:8000
+```bash
+docker compose up -d
+```
+
+### 10. Lancer le serveur Symfony
+
+```bash
+symfony server:start
+```
+
+### 11. Accéder à l’application
+
+[http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ---
 
-> **FélinementVôôtre** – le premier site de rencontre pensé pour nos matous !  
-> Bonne découverte et… longue vie aux ronrons !
+FélinementVôtre – le premier site de rencontre pensé pour nos matous !  
+Bonne découverte et… longue vie aux ronrons !
