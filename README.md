@@ -105,4 +105,3 @@ symfony server:start
 ---
 
 FélinementVôtre – le premier site de rencontre pensé pour nos matous !  
-Bonne découverte et… longue vie aux ronrons !
