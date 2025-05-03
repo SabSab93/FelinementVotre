@@ -53,14 +53,12 @@ class Cats
         $this->conquetes  = new ArrayCollection();
     }
 
-    // -------------------- ID --------------------
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    // -------------------- NAME --------------------
 
     public function getName(): ?string
     {
@@ -72,7 +70,6 @@ class Cats
         return $this;
     }
 
-    // -------------------- AGE --------------------
 
     public function getAge(): ?int
     {
@@ -84,7 +81,6 @@ class Cats
         return $this;
     }
 
-    // -------------------- BREED --------------------
 
     public function getBreed(): ?string
     {
@@ -96,7 +92,6 @@ class Cats
         return $this;
     }
 
-    // -------------------- GENDER --------------------
 
     public function getGender(): ?Gender
     {
@@ -108,7 +103,6 @@ class Cats
         return $this;
     }
 
-    // -------------------- USER --------------------
 
     public function getUser(): ?Users
     {
@@ -120,7 +114,6 @@ class Cats
         return $this;
     }
 
-    // -------------------- DESCRIPTION --------------------
 
     public function getDescription(): ?string
     {
@@ -132,7 +125,6 @@ class Cats
         return $this;
     }
 
-    // -------------------- IMAGE ID --------------------
 
     public function getImageId(): ?int
     {
@@ -144,7 +136,6 @@ class Cats
         return $this;
     }
 
-    // -------------------- CARACTÈRES --------------------
 
     /**
      * @return Collection<int, Caractere>
@@ -168,7 +159,6 @@ class Cats
         return $this;
     }
 
-    // -------------------- CONQUÊTES (MATCHES) --------------------
 
     /**
      * @return Collection<int, Conquete>

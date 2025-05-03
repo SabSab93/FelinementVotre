@@ -1,4 +1,4 @@
-{# templates/home/felinementvotre.html.twig #}
+
 {% extends 'base.html.twig' %}
 
 {% block title %}🐾 Bienvenue sur FélinementVôtre 🐾{% endblock %}
@@ -49,13 +49,13 @@
   }
 
 
-  /* Conteneur du carrousel */
+
   #chatCarousel {
     max-width: 400px;
     margin: 2rem auto;
   }
   #chatCarousel .carousel-inner {
-    /* on laisse la hauteur s’ajuster à l’image */
+
   }
   #chatCarousel .carousel-item img {
     width: 100%;
@@ -90,21 +90,21 @@
     </div>
 
     {% if app.user.cats|length > 0 %}
-      <!-- Bouton pour ouvrir le modal -->
+
       <button class="btn btn-kawaii mb-4" data-bs-toggle="modal" data-bs-target="#selectCatModal">
         💘 Trouver l’amour pour mon chat
       </button>
 
-      <!-- Le carousel éventuel -->
+   
       <div id="chatCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
-        {# ... ton carousel ... #}
+      
       </div>
     {% else %}
       <p>Tu n'as encore inscrit aucun chat. Commence maintenant ! 🐱</p>
     {% endif %}
   </div>
 
-  {# --- MODAL POUR SÉLECTIONNER LE CHAT --- #}
+
   <div class="modal fade" id="selectCatModal" tabindex="-1" aria-labelledby="selectCatModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
       <div class="modal-content">
@@ -145,11 +145,9 @@
     document.querySelectorAll('.select-cat-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const catId = btn.dataset.catId;
-        // on ferme le modal
         const modalEl = document.getElementById('selectCatModal');
         const modal = bootstrap.Modal.getInstance(modalEl);
         modal.hide();
-        // puis redirection vers la page de matchmaking
         window.location.href = '{{ path("app_conquete_match", {"catId": "CATID"}) }}'.replace('CATID', catId);
       });
     });

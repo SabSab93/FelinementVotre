@@ -22,7 +22,6 @@ class ConqueteController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        // Calcule le score (reste ta logique réelle)
         $matches = [];
         foreach ($conqRepo->findAll() as $conq) {
             $score = random_int(50,95);

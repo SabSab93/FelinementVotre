@@ -1,5 +1,5 @@
 <?php
-// src/Entity/Conquete.php
+
 namespace App\Entity;
 
 use App\Repository\ConqueteRepository;
@@ -41,7 +41,6 @@ class Conquete
         $this->caracteres = new ArrayCollection();
     }
 
-    // —— Getters & Setters —— //
 
     public function getId(): ?int
     {
@@ -110,7 +109,6 @@ class Conquete
     {
         if (!$this->caracteres->contains($caractere)) {
             $this->caracteres->add($caractere);
-            // Synchroniser le côté inverse si nécessaire
             $caractere->addConquete($this);
         }
         return $this;

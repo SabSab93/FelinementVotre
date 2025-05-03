@@ -1,5 +1,5 @@
 <?php
-// src/Controller/MatchController.php
+
 namespace App\Controller;
 
 use App\Entity\Cats;
@@ -20,7 +20,7 @@ class MatchController extends AbstractController
         $cat->addConquete($conquete);
         $em->flush();
 
-        // on peut renvoyer du JSON ou rediriger
+
         return $this->json(['success' => true]);
     }
 }

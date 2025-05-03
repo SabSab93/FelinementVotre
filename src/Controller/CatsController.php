@@ -24,9 +24,7 @@ class CatsController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
-    /**
-     * Liste des chats de l'utilisateur connecté
-     */
+
     #[Route('/cats', name: 'app_list_cats', methods: ['GET'])]
     public function listCats(UserInterface $user, ConqueteRepository $conqueteRepo): Response
     {
@@ -54,10 +52,7 @@ class CatsController extends AbstractController
             'matches' => $allMatches,
         ]);
     }
-    /**
-     * Formulaire d'ajout de chat (GET)
-     * On fournit la liste des traits de caractère pour cocher
-     */
+
     #[Route('/cats/add/form', name: 'app_add_cat_form', methods: ['GET'])]
     public function addCatForm(CaractereRepository $caractereRepo): Response
     {
@@ -68,10 +63,7 @@ class CatsController extends AbstractController
         ]);
     }
 
-    /**
-     * Traitement de l'ajout de chat (POST)
-     * On lit les caractères cochés et on les associe au chat
-     */
+
     #[Route('/cats/add', name: 'app_add_cat', methods: ['POST'])]
     public function addCat(
         Request $request,
@@ -120,7 +112,7 @@ class CatsController extends AbstractController
             ->setImageId($imageId)
             ->setUser($user);
 
-        // Association des traits de caractère cochés
+
         foreach ($caractereIds as $id) {
             if ($car = $caractereRepo->find((int)$id)) {
                 $cat->addCaractere($car);
@@ -135,9 +127,7 @@ class CatsController extends AbstractController
         ]);
     }
 
-    /**
-     * Page de succès après création
-     */
+ 
     #[Route('/cats/success/{id}', name: 'app_cat_success', methods: ['GET'])]
     public function success(Cats $cat): Response
     {
@@ -146,9 +136,7 @@ class CatsController extends AbstractController
         ]);
     }
 
-    /**
-     * Mise à jour d'un chat (non modifié ici)
-     */
+ 
     #[Route('/cats/update/{id}', name: 'app_update_cat', methods: ['POST'])]
     public function updateCat(
         Request $request,

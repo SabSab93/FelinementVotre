@@ -21,7 +21,7 @@ Avec **FélinementVôôtre**, rencontre ton félin près de chez toi… grrrrrr 
 
 1. **Récupération du code**  
    ```bash
-   git clone git@ton-serveur:TonUser/FelinementVotre.git
+   git clone git@serveur:User/FelinementVotre.git
    cd FelinementVotre
    ```
 
