@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace App\Security;
 
 use App\Entity\Users;
@@ -15,9 +13,13 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordC
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Routing\RouterInterface; 
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Http\Util\TargetPathTrait; // ← ajouté
+
 class AppCustomAuthenticator extends AbstractAuthenticator
 {
+    use TargetPathTrait; // ← ajouté
+
     private $entityManager;
     private RouterInterface $router;
 
@@ -26,6 +28,7 @@ class AppCustomAuthenticator extends AbstractAuthenticator
         $this->entityManager = $entityManager;
         $this->router = $router;
     }
+
     public function supports(Request $request): ?bool
     {
         // On authentifie uniquement sur la route /login (POST)
@@ -44,10 +47,13 @@ class AppCustomAuthenticator extends AbstractAuthenticator
         );
     }
 
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
+    public function onAuthenticationSuccess(Request $req, TokenInterface $token, string $firewall): Response
     {
-        $targetUrl = $this->router->generate('app_felinementvotre'); // ← utilise la route Symfony
-        return new RedirectResponse($targetUrl);
+
+        if ($url = $this->getTargetPath($req->getSession(), $firewall)) {
+            return new RedirectResponse($url);
+        }
+        return new RedirectResponse($this->router->generate('app_felinementvotre'));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
@@ -67,4 +73,3 @@ class AppCustomAuthenticator extends AbstractAuthenticator
         return true;
     }
 }
-

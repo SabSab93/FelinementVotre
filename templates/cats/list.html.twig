@@ -1,15 +1,123 @@
+{# templates/cats/list.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Liste des Chats{% endblock %}
+{% block title %}🐾 Mes Chats Adorables 🐾{% endblock %}
+
+{% block stylesheets %}
+<style>
+  body { background: #fff0f6; }
+
+  .card-kawaii {
+    max-width: 800px;
+    margin: 2rem auto;
+    border-radius: 1.5rem;
+    background: #ffeef8;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .card-kawaii .card-header {
+    background: #ffdaec;
+    border-radius: 1.5rem 1.5rem 0 0;
+    color: #d63384;
+    text-align:center;
+    font-weight: 600;
+  }
+  .accordion-button {
+    background: #ffe4e1;
+    color: #6d214f;
+    font-weight: bold;
+    border-radius: .75rem;
+    margin-bottom: .5rem;
+  }
+  .accordion-body {
+    background-color: #fff0f5;
+    border-radius: .75rem;
+  }
+  .cat-image {
+    width: 100%;
+    max-width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 1rem;
+  }
+  .trait-badge {
+    display: inline-block;
+    background: #ffd2e8;
+    color: #c81e68;
+    border-radius: .75rem;
+    padding: .25rem .75rem;
+    margin: .25rem;
+  }
+
+  .back-btn {
+    display: block;
+    margin: 3rem auto 2rem; 
+    width: fit-content;
+  }
+  .back-btn img {
+    width: 150px; 
+    height: auto;
+  }
+</style>
+{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <h2 class="mb-4">Liste des Chats</h2>
-    {% for cat in cats %}
-        <div class="mb-3">
-            <p>Nom : {{ cat.name }}</p>
-            <p>Genre : {{ cat.gender.value}}</p>
-        </div>
-    {% endfor %}
+<div class="card card-kawaii">
+  <div class="card-header">🐱 Voici la liste de tes petits compagnons 🐱</div>
+  <div class="card-body">
+    {% if cats is empty %}
+      <p class="text-center">
+        Aucun chat enregistré. 
+        <a href="{{ path('app_add_cat_form') }}" class="btn btn-kawaii">Ajoute ton premier chat !</a>
+      </p>
+    {% else %}
+      <div class="accordion" id="catAccordion">
+        {% for cat in cats %}
+          <div class="accordion-item mb-2">
+            <h2 class="accordion-header" id="heading{{ cat.id }}">
+              <button class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#collapse{{ cat.id }}"
+                      aria-expanded="false"
+                      aria-controls="collapse{{ cat.id }}">
+                🐾 {{ cat.name }} ({{ cat.gender.value|capitalize }}) – {{ cat.age }} ans
+              </button>
+            </h2>
+            <div id="collapse{{ cat.id }}"
+                 class="accordion-collapse collapse"
+                 aria-labelledby="heading{{ cat.id }}"
+                 data-bs-parent="#catAccordion">
+              <div class="accordion-body">
+                <div class="row align-items-center">
+                  <div class="col-md-4 text-center mb-3 mb-md-0">
+                    <img src="{{ asset('images/cats/image_' ~ cat.imageId ~ '.jpg') }}"
+                         alt="Chat image"
+                         class="cat-image">
+                  </div>
+                  <div class="col-md-8 text-start">
+                    <p><strong>Race :</strong> {{ cat.breed ?: 'Inconnue' }}</p>
+                    <p><strong>Description :</strong> {{ cat.description ?: 'Pas de description' }}</p>
+                    <p><strong>Traits de caractère :</strong></p>
+                    <div>
+                      {% for trait in cat.caracteres %}
+                        <span class="trait-badge">😺 {{ trait.label }}</span>
+                      {% else %}
+                        <span>Aucun caractère défini</span>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
 </div>
+
+{# Le bouton « Retour » est placé après la carte, à la fin du <body> #}
+<a href="{{ path('app_felinementvotre') }}" class="back-btn">
+  <img src="{{ asset('images/cat_homepage/left_arrow_cat.png') }}" alt="Retour à l'accueil">
+</a>
 {% endblock %}

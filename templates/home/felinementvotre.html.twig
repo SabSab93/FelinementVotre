@@ -1,38 +1,129 @@
+{# templates/home/felinementvotre.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}
-    {% if app.user %}
-        Bienvenue, {{ app.user.name }}!
-    {% else %}
-        Bienvenue sur FélinementVôtre!
-    {% endif %}
+{% block title %}🐾 Bienvenue sur FélinementVôtre 🐾{% endblock %}
+
+{% block stylesheets %}
+<style>
+  body {
+    background: #fff0f6;
+  }
+  .hero {
+    background: #ffeef8;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 800px;
+    text-align: center;
+  }
+  .hero h1 {
+    color: #d63384;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  .hero img {
+    max-width: 100%;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .btn-kawaii {
+    background-color: #ffb6c1;
+    color: white;
+    border-radius: .75rem;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+  }
+  .btn-kawaii:hover {
+    background-color: #ff69b4;
+  }
+
+  /* Carousel “tout l’image” en largeur */
+  #chatCarousel {
+    max-width: 400px;
+    margin: 2rem auto;
+  }
+  #chatCarousel .carousel-inner {
+    height: auto !important;           /* laisse la hauteur s’ajuster */
+  }
+  #chatCarousel .carousel-item {
+    position: relative;                /* supprime l’absolu pour auto-height */
+  }
+  #chatCarousel .carousel-item img {
+    width: 100%;                       /* image en pleine largeur */
+    height: auto;                      /* hauteur auto */
+    object-fit: contain;               /* tout l’image, mêmes proportions */
+    display: block;
+    margin: 0 auto;
+    border-radius: 1rem;
+  }
+  #chatCarousel .carousel-caption {
+    background: rgba(255,255,255,0.8);
+    border-radius: .75rem;
+    color: #6d214f;
+  }
+</style>
 {% endblock %}
 
 {% block body %}
-<div class="container mt-5">
+  <div class="hero">
+    <h1>🐱 Trouve l’amour de ton félin ! 🐱</h1>
+    <img src="{{ asset('images/cat_homepage/kisscat.png') }}"
+         alt="Deux chats qui s'embrassent"
+         class="img-fluid my-3">
+    <p class="lead">
+      Bienvenue {{ app.user ? app.user.name ~ ' !' : 'sur FélinementVôtre !' }}
+    </p>
+  </div>
+
+  <div class="container text-center">
     {% if app.user %}
-        <h1 class="mb-4">Bienvenue, {{ app.user.name }}!</h1>
+      <div class="mb-4">
+        <a href="{{ path('app_list_cats') }}" class="btn btn-kawaii me-2">
+          Voir mes chats
+        </a>
+        <a href="{{ path('app_add_cat_form') }}" class="btn btn-success">
+          Ajouter un nouveau chat
+        </a>
+      </div>
 
-        {# Bouton de déconnexion #}
-        <form action="{{ path('app_logout') }}" method="post" style="display: inline;">
-            <button type="submit" class="btn btn-danger">Déconnexion</button>
-        </form>
-
-        <div class="mt-4">
-            <h3>Gérer vos chats :</h3>
-            <a href="{{ path('app_list_cats') }}" class="btn btn-info">Voir la liste de mes chats</a>
-            <a href="{{ path('app_add_cat_form') }}" class="btn btn-success">Ajouter un chat</a>
+      {% if app.user.cats|length > 0 %}
+        <div id="chatCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            {% for cat in app.user.cats %}
+              <div class="carousel-item {{ loop.first ? 'active' : '' }}">
+                <img src="{{ asset('images/cats/image_' ~ cat.imageId ~ '.jpg') }}"
+                     alt="Image de {{ cat.name }}">
+                <div class="carousel-caption d-none d-md-block p-3">
+                  <h5>{{ cat.name }}, {{ cat.age }} ans</h5>
+                  <p>{{ cat.description ?: 'Ce félin est mystérieux…' }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          <button class="carousel-control-prev" type="button"
+                  data-bs-target="#chatCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Précédent</span>
+          </button>
+          <button class="carousel-control-next" type="button"
+                  data-bs-target="#chatCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Suivant</span>
+          </button>
         </div>
+      {% else %}
+        <p>Tu n'as encore inscrit aucun chat. Commence maintenant ! 🐱</p>
+      {% endif %}
     {% else %}
-        <h1 class="mb-4">Bienvenue, visitez notre site pour vous inscrire et découvrir nos services!</h1>
+      <p>
+        <a href="{{ path('app_login') }}" class="btn btn-kawaii me-2">Connecte-toi</a>
+        ou
+        <a href="{{ path('app_register_form') }}" class="btn btn-secondary">
+          inscris-toi
+        </a>
+        pour trouver l’âme sœur de ton félin&nbsp;!
+      </p>
     {% endif %}
-</div>
-
-<script>
-    {% if app.user %}
-        console.log('Contenu de app.user:', {{ app.user|json_encode()|raw }});
-    {% else %}
-        console.log('Aucun utilisateur connecté.');
-    {% endif %}
-</script>
+  </div>
 {% endblock %}

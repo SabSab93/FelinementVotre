@@ -1,36 +1,68 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mettre à jour le chat{% endblock %}
+{% block title %}✏️ Mettre à jour {{ cat.name }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+  body { background: #fff0f6; }
+  .card-kawaii {
+    max-width: 600px;
+    margin: 2rem auto;
+    border-radius: 1.5rem;
+    background: #ffeef8;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .card-kawaii .card-header {
+    background: #ffdaec;
+    border-radius: 1.5rem 1.5rem 0 0;
+    color: #d63384;
+    text-align:center;
+    font-size: 1.5rem;
+  }
+  .form-control, .form-select {
+    border-radius: .75rem;
+  }
+  .btn-update {
+    background: #ff8fc1;
+    color: white;
+    border-radius: .75rem;
+    padding: .5rem 1.5rem;
+    font-weight: 600;
+  }
+  .btn-update:hover {
+    background: #ff66a3;
+  }
+</style>
+{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <h2 class="mb-4">Mettre à jour {{ cat.name }}</h2>
+<div class="card card-kawaii">
+  <div class="card-header">✏️ Mettre à jour {{ cat.name }}</div>
+  <div class="card-body">
     <form action="{{ path('app_update_cat', {'id': cat.id}) }}" method="POST">
-        <div class="mb-3">
-            <label for="name" class="form-label">Nom du chat :</label>
-            <input type="text" id="name" name="name" class="form-control" value="{{ cat.name }}" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="age" class="form-label">Âge :</label>
-            <input type="number" id="age" name="age" class="form-control" value="{{ cat.age }}" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="breed" class="form-label">Race :</label>
-            <input type="text" id="breed" name="breed" class="form-control" value="{{ cat.breed }}" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="gender" class="form-label">Sexe :</label>
-            <select name="gender" id="gender" class="form-control">
-                <option value="male" {% if cat.gender == 'male' %}selected{% endif %}>Mâle</option>
-                <option value="female" {% if cat.gender == 'female' %}selected{% endif %}>Femelle</option>
-                <option value="unknown" {% if cat.gender == 'unknown' %}selected{% endif %}>Non spécifié</option>
-            </select>
-        </div>
-
-        <button type="submit" class="btn btn-warning">Mettre à jour</button>
+      <div class="mb-3">
+        <label for="name" class="form-label">Nom du chat :</label>
+        <input type="text" id="name" name="name" class="form-control" value="{{ cat.name }}" required>
+      </div>
+      <div class="mb-3">
+        <label for="age" class="form-label">Âge :</label>
+        <input type="number" id="age" name="age" class="form-control" value="{{ cat.age }}" required>
+      </div>
+      <div class="mb-3">
+        <label for="breed" class="form-label">Race :</label>
+        <input type="text" id="breed" name="breed" class="form-control" value="{{ cat.breed }}">
+      </div>
+      <div class="mb-3">
+        <label for="gender" class="form-label">Genre :</label>
+        <select id="gender" name="gender" class="form-select">
+          <option value="male"   {% if cat.gender.value == 'male' %}selected{% endif %}>Mâle</option>
+          <option value="female" {% if cat.gender.value == 'female' %}selected{% endif %}>Femelle</option>
+        </select>
+      </div>
+      <div class="text-center">
+        <button type="submit" class="btn-update">Mettre à jour</button>
+      </div>
     </form>
+  </div>
 </div>
 {% endblock %}

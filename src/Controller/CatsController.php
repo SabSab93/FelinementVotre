@@ -4,100 +4,163 @@ namespace App\Controller;
 
 use App\Entity\Cats;
 use App\Enum\Gender;
+use App\Repository\CaractereRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class CatsController extends AbstractController
 {
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
     }
 
-    // Affiche la liste des chats de l'utilisateur
+    /**
+     * Liste des chats de l'utilisateur connecté
+     */
     #[Route('/cats', name: 'app_list_cats', methods: ['GET'])]
     public function listCats(UserInterface $user): Response
     {
-        // Récupère les chats associés à l'utilisateur
-        $cats = $this->entityManager->getRepository(Cats::class)->findBy(['user' => $user]);
+        $cats = $this->entityManager
+            ->getRepository(Cats::class)
+            ->findBy(['user' => $user]);
 
         return $this->render('cats/list.html.twig', [
             'cats' => $cats,
         ]);
     }
 
-    // Afficher le formulaire pour ajouter un chat
+    /**
+     * Formulaire d'ajout de chat (GET)
+     * On fournit la liste des traits de caractère pour cocher
+     */
     #[Route('/cats/add/form', name: 'app_add_cat_form', methods: ['GET'])]
-    public function addCatForm(): Response
+    public function addCatForm(CaractereRepository $caractereRepo): Response
     {
-        return $this->render('cats/add_cat.html.twig');
+        $caracteres = $caractereRepo->findAll();
+
+        return $this->render('cats/add_cat.html.twig', [
+            'caracteres' => $caracteres,
+        ]);
     }
 
-    // Ajouter un chat
+    /**
+     * Traitement de l'ajout de chat (POST)
+     * On lit les caractères cochés et on les associe au chat
+     */
     #[Route('/cats/add', name: 'app_add_cat', methods: ['POST'])]
-    public function addCat(Request $request, UserInterface $user): Response
-    {
-        $name = $request->request->get('name');
-        $age = $request->request->get('age');
-        $breed = $request->request->get('breed');
-        $genderValue = $request->request->get('gender');
-        $gender = Gender::from($genderValue);  // Utilisation de l'enum Gender
+    public function addCat(
+        Request $request,
+        UserInterface $user,
+        CaractereRepository $caractereRepo
+    ): Response {
+        $name         = $request->request->get('name');
+        $age          = $request->request->get('age');
+        $breed        = $request->request->get('breed');
+        $genderValue  = $request->request->get('gender');
+        $description  = $request->request->get('description');
+        $caractereIds = $request->request->all('caracteres', []);
+
+        $gender = Gender::from($genderValue);
 
         if (!$user) {
-            return $this->json(['message' => 'Vous devez être connecté pour ajouter un chat.'], 403);
+            return $this->json([
+                'message' => 'Vous devez être connecté pour ajouter un chat.'
+            ], 403);
         }
 
-        // Création du chat et association avec l'utilisateur
-        $cat = new Cats();
-        $cat->setName($name);
-        $cat->setAge($age);
-        $cat->setBreed($breed);
-        $cat->setGender($gender);  // Utilisation de l'enum Gender
-        $cat->setUser($user);
+        // Empêcher de réutiliser une même image
+        $usedImageIds = $this->entityManager
+            ->getRepository(Cats::class)
+            ->createQueryBuilder('c')
+            ->select('c.imageId')
+            ->getQuery()
+            ->getSingleColumnResult();
 
-        // Persister le chat dans la base de données
+        $availableImageIds = array_diff(range(1, 10), $usedImageIds);
+        if (empty($availableImageIds)) {
+            return $this->render('cats/max_reached.html.twig', [
+                'message' => 'Tous les chats ont une image attribuée. Vous ne pouvez plus en ajouter.'
+            ]);
+        }
+
+        $imageId = $availableImageIds[array_rand($availableImageIds)];
+
+        // Création de l'entité
+        $cat = new Cats();
+        $cat->setName($name)
+            ->setAge((int)$age)
+            ->setBreed($breed)
+            ->setGender($gender)
+            ->setDescription($description)
+            ->setImageId($imageId)
+            ->setUser($user);
+
+        // Association des traits de caractère cochés
+        foreach ($caractereIds as $id) {
+            if ($car = $caractereRepo->find((int)$id)) {
+                $cat->addCaractere($car);
+            }
+        }
+
         $this->entityManager->persist($cat);
         $this->entityManager->flush();
 
-        // Réponse de succès
-        return $this->json(['message' => 'Chat ajouté avec succès.'], 200);
+        return $this->redirectToRoute('app_cat_success', [
+            'id' => $cat->getId()
+        ]);
     }
 
-    // Mise à jour du chat (formulaire et traitement)
-    #[Route('/cats/update/{id}', name: 'app_update_cat', methods: ['POST'])]
-    public function updateCat(Request $request, Cats $cat, UserInterface $user): Response
+    /**
+     * Page de succès après création
+     */
+    #[Route('/cats/success/{id}', name: 'app_cat_success', methods: ['GET'])]
+    public function success(Cats $cat): Response
     {
+        return $this->render('cats/success.html.twig', [
+            'cat' => $cat
+        ]);
+    }
+
+    /**
+     * Mise à jour d'un chat (non modifié ici)
+     */
+    #[Route('/cats/update/{id}', name: 'app_update_cat', methods: ['POST'])]
+    public function updateCat(
+        Request $request,
+        Cats $cat,
+        UserInterface $user
+    ): Response {
         if ($cat->getUser() !== $user) {
-            return $this->json(['message' => 'Vous ne pouvez pas modifier ce chat.'], 403);
+            return $this->json([
+                'message' => 'Vous ne pouvez pas modifier ce chat.'
+            ], 403);
         }
 
-        $name = $request->request->get('name');
-        $age = $request->request->get('age');
-        $breed = $request->request->get('breed');
+        $name        = $request->request->get('name');
+        $age         = $request->request->get('age');
+        $breed       = $request->request->get('breed');
         $genderValue = $request->request->get('gender');
-        $gender = Gender::from($genderValue);  // Utilisation de l'enum Gender
 
-        // Mise à jour des informations du chat
         if (!empty($name)) {
             $cat->setName($name);
         }
         if (!empty($age)) {
-            $cat->setAge($age);
+            $cat->setAge((int)$age);
         }
         if (!empty($breed)) {
             $cat->setBreed($breed);
         }
-        if (!empty($gender)) {
-            $cat->setGender($gender);  // Utilisation de l'enum Gender
+        if (!empty($genderValue)) {
+            $cat->setGender(Gender::from($genderValue));
         }
 
-        // Sauvegarde des changements
         $this->entityManager->flush();
 
         return $this->json(['message' => 'Chat mis à jour avec succès.'], 200);

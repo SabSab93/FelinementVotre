@@ -1,36 +1,129 @@
+{# templates/cats/add_cat.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Ajouter un Chat{% endblock %}
+{% block title %}Ajouter un Chat – FélinementVôtre{% endblock %}
+
+{% block stylesheets %}
+    <style>
+      body {
+        background-color: #fff0f6;
+      }
+      .card-kawaii {
+        max-width: 600px;
+        margin: 2rem auto;
+        border-radius: 1.5rem;
+        background: #ffeef8;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      }
+      .card-kawaii .card-header {
+        background: #ffdaec;
+        border-bottom: none;
+        border-radius: 1.5rem 1.5rem 0 0;
+        text-align: center;
+        font-size: 1.5rem;
+        color: #d63384;
+      }
+      .form-control, .form-select, .form-check-input {
+        border-radius: .75rem;
+      }
+      .btn-kawaii {
+        background-color: #ff8fc1;
+        color: white;
+        border-radius: .75rem;
+        padding: .5rem 1.5rem;
+        font-weight: 600;
+      }
+      .btn-kawaii:hover {
+        background-color: #ff66a3;
+      }
+      .trait-badge {
+        display: inline-block;
+        background: #ffd2e8;
+        color: #c81e68;
+        border-radius: .75rem;
+        padding: .25rem .75rem;
+        margin: .25rem;
+        cursor: pointer;
+        transition: background .2s;
+      }
+      .trait-badge.checked {
+        background: #ff8fc1;
+        color: white;
+      }
+    </style>
+{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <h2 class="mb-4">Ajouter un Chat</h2>
-    <form action="{{ path('app_add_cat') }}" method="POST">
+  <div class="card card-kawaii">
+    <div class="card-header">
+      🐾 Créer mon chat 🐾
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ path('app_add_cat') }}">
         <div class="mb-3">
-            <label for="name" class="form-label">Nom du chat :</label>
-            <input type="text" id="name" name="name" class="form-control" required>
+          <label for="name" class="form-label">😺 Nom du chat</label>
+          <input type="text" id="name" name="name" class="form-control" placeholder="ex. Mochi" required>
         </div>
 
         <div class="mb-3">
-            <label for="age" class="form-label">Âge :</label>
-            <input type="number" id="age" name="age" class="form-control" required>
+          <label for="age" class="form-label">🎂 Âge (ans)</label>
+          <input type="number" id="age" name="age" class="form-control" min="0" placeholder="ex. 2" required>
         </div>
 
         <div class="mb-3">
-            <label for="breed" class="form-label">Race :</label>
-            <input type="text" id="breed" name="breed" class="form-control" required>
+          <label for="breed" class="form-label">🐱 Race</label>
+          <input type="text" id="breed" name="breed" class="form-control" placeholder="ex. Européen">
         </div>
 
         <div class="mb-3">
-            <label for="gender" class="form-label">Sexe :</label>
-            <select name="gender" id="gender" class="form-control">
-                <option value="male">Mâle</option>
-                <option value="female">Femelle</option>
-                <option value="unknown">Non spécifié</option>
-            </select>
+          <label for="gender" class="form-label">🚻 Genre</label>
+          <select id="gender" name="gender" class="form-select" required>
+            <option disabled selected value="">Choisis…</option>
+            <option value="male">Mâle</option>
+            <option value="female">Femelle</option>
+          </select>
         </div>
 
-        <button type="submit" class="btn btn-success">Ajouter</button>
-    </form>
-</div>
+        <div class="mb-3">
+          <label for="description" class="form-label">📝 Description</label>
+          <textarea id="description" name="description" rows="3" class="form-control" placeholder="Dis-nous tout sur ton chat…"></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">✨ Traits de caractère (0–5) :</label>
+          <div id="traits-container">
+            {% for caractere in caracteres %}
+              <span class="trait-badge" data-id="{{ caractere.id }}">
+                {{ caractere.label }}
+                <input type="checkbox" name="caracteres[]" value="{{ caractere.id }}" class="d-none">
+              </span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="text-center">
+          <button type="submit" class="btn btn-kawaii">
+            🎉 Créer mon chat !
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Gestion du style des badges de caractère et limite à 5
+    const badges = document.querySelectorAll('.trait-badge');
+    badges.forEach(badge => {
+      const checkbox = badge.querySelector('input[type="checkbox"]');
+      badge.addEventListener('click', () => {
+        const checked = Array.from(document.querySelectorAll('.trait-badge.checked'));
+        if (!badge.classList.contains('checked') && checked.length >= 5) {
+          alert("Vous ne pouvez sélectionner que 5 traits maximum !");
+          return;
+        }
+        badge.classList.toggle('checked');
+        checkbox.checked = !checkbox.checked;
+      });
+    });
+  </script>
 {% endblock %}
