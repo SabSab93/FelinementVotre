@@ -19,6 +19,7 @@
     border-radius: 1.5rem 1.5rem 0 0;
     color: #d63384;
     text-align:center;
+    padding: 1rem;
     font-weight: 600;
   }
   .accordion-button {
@@ -47,77 +48,127 @@
     padding: .25rem .75rem;
     margin: .25rem;
   }
-
   .back-btn {
     display: block;
-    margin: 3rem auto 2rem; 
+    margin: 3rem auto 2rem;
     width: fit-content;
   }
   .back-btn img {
-    width: 150px; 
+    width: 150px;
     height: auto;
   }
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="card card-kawaii">
-  <div class="card-header">🐱 Voici la liste de tes petits compagnons 🐱</div>
-  <div class="card-body">
-    {% if cats is empty %}
-      <p class="text-center">
-        Aucun chat enregistré. 
-        <a href="{{ path('app_add_cat_form') }}" class="btn btn-kawaii">Ajoute ton premier chat !</a>
-      </p>
-    {% else %}
-      <div class="accordion" id="catAccordion">
-        {% for cat in cats %}
-          <div class="accordion-item mb-2">
-            <h2 class="accordion-header" id="heading{{ cat.id }}">
-              <button class="accordion-button collapsed"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#collapse{{ cat.id }}"
-                      aria-expanded="false"
-                      aria-controls="collapse{{ cat.id }}">
-                🐾 {{ cat.name }} ({{ cat.gender.value|capitalize }}) – {{ cat.age }} ans
-              </button>
-            </h2>
-            <div id="collapse{{ cat.id }}"
-                 class="accordion-collapse collapse"
-                 aria-labelledby="heading{{ cat.id }}"
-                 data-bs-parent="#catAccordion">
-              <div class="accordion-body">
-                <div class="row align-items-center">
-                  <div class="col-md-4 text-center mb-3 mb-md-0">
-                    <img src="{{ asset('images/cats/image_' ~ cat.imageId ~ '.jpg') }}"
-                         alt="Chat image"
-                         class="cat-image">
-                  </div>
-                  <div class="col-md-8 text-start">
-                    <p><strong>Race :</strong> {{ cat.breed ?: 'Inconnue' }}</p>
-                    <p><strong>Description :</strong> {{ cat.description ?: 'Pas de description' }}</p>
-                    <p><strong>Traits de caractère :</strong></p>
-                    <div>
-                      {% for trait in cat.caracteres %}
-                        <span class="trait-badge">😺 {{ trait.label }}</span>
-                      {% else %}
-                        <span>Aucun caractère défini</span>
-                      {% endfor %}
+  <div class="card card-kawaii">
+    <div class="card-header">🐱 Voici la liste de tes petits compagnons 🐱</div>
+    <div class="card-body">
+      {% if cats is empty %}
+        <p class="text-center">
+          Aucun chat enregistré.
+          <a href="{{ path('app_add_cat_form') }}" class="btn btn-kawaii">Ajoute ton premier chat !</a>
+        </p>
+      {% else %}
+        <div class="accordion" id="catAccordion">
+          {# Boucle sur chaque chat #}
+          {% for cat in cats %}
+            <div class="accordion-item mb-3">
+              <h2 class="accordion-header" id="heading{{ cat.id }}">
+                <button class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapse{{ cat.id }}"
+                        aria-expanded="false"
+                        aria-controls="collapse{{ cat.id }}">
+                  🐾 {{ cat.name }} ({{ cat.gender.value|capitalize }}) – {{ cat.age }} ans
+                </button>
+              </h2>
+              <div id="collapse{{ cat.id }}"
+                   class="accordion-collapse collapse"
+                   aria-labelledby="heading{{ cat.id }}"
+                   data-bs-parent="#catAccordion">
+                <div class="accordion-body">
+                  {# --- Détails du chat --- #}
+                  <div class="row align-items-center mb-4">
+                    <div class="col-md-4 text-center mb-3 mb-md-0">
+                      <img src="{{ asset('images/cats/image_' ~ cat.imageId ~ '.jpg') }}"
+                           alt="Photo de {{ cat.name }}"
+                           class="cat-image">
+                    </div>
+                    <div class="col-md-8 text-start">
+                      <p><strong>Race :</strong> {{ cat.breed ?: 'Inconnue' }}</p>
+                      <p><strong>Description :</strong> {{ cat.description ?: 'Pas de description' }}</p>
+                      <p><strong>Traits de caractère :</strong></p>
+                      <div>
+                        {% for t in cat.caracteres %}
+                          <span class="trait-badge">😺 {{ t.label }}</span>
+                        {% else %}
+                          <span>Aucun trait défini</span>
+                        {% endfor %}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  </div>
-</div>
 
-{# Le bouton « Retour » est placé après la carte, à la fin du <body> #}
-<a href="{{ path('app_felinementvotre') }}" class="back-btn">
-  <img src="{{ asset('images/cat_homepage/left_arrow_cat.png') }}" alt="Retour à l'accueil">
-</a>
+                  {# --- Pré-filtrage des conquêtes #}
+                  {% set raw = matches[cat.id] ?? [] %}
+                  {% set to_show = [] %}
+                  {% for entry in raw %}
+                    {% if entry.score > 0 %}
+                      {% set to_show = to_show|merge([entry]) %}
+                    {% endif %}
+                  {% endfor %}
+
+                  {# --- Accordéon des conquêtes #}
+                  {% if to_show is not empty %}
+                    <h4 class="mt-4 text-center">❤️ Tes conquêtes pour {{ cat.name }} :</h4>
+                    <div class="accordion mt-2" id="matchAccordion{{ cat.id }}">
+                      {% for entry in to_show %}
+                        {% set conq = entry.conquete %}
+                        <div class="accordion-item mb-2">
+                          <h2 class="accordion-header" id="matchHead{{ cat.id }}-{{ conq.id }}">
+                            <button class="accordion-button collapsed"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#matchCol{{ cat.id }}-{{ conq.id }}"
+                                    aria-expanded="false"
+                                    aria-controls="matchCol{{ cat.id }}-{{ conq.id }}">
+                              {{ conq.name }} – {{ entry.score }} %
+                            </button>
+                          </h2>
+                          <div id="matchCol{{ cat.id }}-{{ conq.id }}"
+                               class="accordion-collapse collapse"
+                               aria-labelledby="matchHead{{ cat.id }}-{{ conq.id }}"
+                               data-bs-parent="#matchAccordion{{ cat.id }}">
+                            <div class="accordion-body">
+                              <p><strong>Race :</strong> {{ conq.breed }}</p>
+                              <p><strong>Description :</strong> {{ conq.description }}</p>
+                              <p><strong>Traits :</strong></p>
+                              <ul>
+                                {% for t in conq.caracteres %}
+                                  <li>😻 {{ t.label }}</li>
+                                {% else %}
+                                  <li>Aucun trait défini</li>
+                                {% endfor %}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+
+                </div> {# .accordion-body #}
+              </div> {# .accordion-collapse #}
+            </div> {# .accordion-item #}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Bouton retour #}
+  <a href="{{ path('app_felinementvotre') }}" class="back-btn">
+    <img src="{{ asset('images/cat_homepage/left_arrow_cat.png') }}" alt="Retour">
+  </a>
 {% endblock %}

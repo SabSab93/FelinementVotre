@@ -1,0 +1,116 @@
+{# templates/match.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Trouve la conquête pour {{ cat.name }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+  .swipe-card {
+    max-width: 400px;
+    margin: 2rem auto;
+    background: #ffeef8;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 1rem;
+    text-align: center;
+  }
+  .swipe-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 1rem;
+    cursor: pointer;
+  }
+  .compat-score {
+    font-size: 1.25rem;
+    color: #d63384;
+    margin: 1rem 0;
+  }
+  .btn-swipe {
+    width: 4rem;
+  }
+  .trait-list {
+    text-align: left;
+    margin-top: 1rem;
+  }
+  .trait-list li {
+    list-style: none;
+    margin: .25rem 0;
+  }
+  .back-btn {
+    display: block;
+    margin: 2rem auto;
+    width: fit-content;
+  }
+  .back-btn img {
+    width: 150px;
+    height: auto;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+  <h2 class="text-center mt-4">🧡 {{ cat.name }} cherche l’amour !</h2>
+
+  {% for entry in matches %}
+    {% if entry.score > 0 %}
+      {% set conq = entry.conquete %}
+      <div class="swipe-card" id="card-{{ conq.id }}">
+        <img src="{{ asset('images/conquete/image_drole_' ~ conq.imageId ~ '.jpg') }}"
+             alt="{{ conq.name }}"
+             data-bs-toggle="collapse"
+             data-bs-target="#details-{{ conq.id }}"
+             aria-expanded="false"
+             aria-controls="details-{{ conq.id }}">
+
+        <div class="compat-score">
+          {{ entry.score }} %
+        </div>
+        <h4>{{ conq.name }}</h4>
+
+        <div id="details-{{ conq.id }}" class="collapse text-start mt-3">
+          <p><strong>Race :</strong> {{ conq.breed }}</p>
+          <p><strong>Description :</strong> {{ conq.description }}</p>
+          <p><strong>Traits :</strong></p>
+          <ul class="trait-list">
+            {% for t in conq.caracteres %}
+              <li>😻 {{ t.label }}</li>
+            {% else %}
+              <li>Aucun trait défini</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="d-flex justify-content-around mt-4">
+          <button class="btn btn-outline-secondary btn-swipe" onclick="swipe('left')">‹</button>
+          <button class="btn btn-kawaii btn-swipe"
+            onclick="fetch('{{ path('app_cat_match', {cat: cat.id, conquete: conq.id}) }}', {method: 'POST'})">❤</button>
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+
+  {# Bouton retour vers la page FélinementVôtre #}
+  <a href="{{ path('app_felinementvotre') }}" class="back-btn">
+    <img src="{{ asset('images/cat_homepage/left_arrow_cat.png') }}" alt="Retour">
+  </a>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    let current = 0;
+    const cards = document.querySelectorAll('.swipe-card');
+    cards.forEach((c, i) => { if (i !== 0) c.style.display = 'none'; });
+
+    function swipe(direction) {
+      cards[current].style.display = 'none';
+      current++;
+      if (current < cards.length) {
+        cards[current].style.display = 'block';
+      } else {
+        document.body.innerHTML = '<h2 class="text-center mt-5">Fin des propositions 🐾</h2>';
+      }
+    }
+  </script>
+{% endblock %}

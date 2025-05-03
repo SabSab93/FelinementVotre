@@ -20,10 +20,13 @@ class Caractere
 
     #[ORM\ManyToMany(targetEntity: Cats::class, mappedBy: 'caracteres')]
     private Collection $cats;
+    #[ORM\ManyToMany(targetEntity: Conquete::class, mappedBy: 'caracteres')]
+    private Collection $conquetes;
 
     public function __construct()
     {
         $this->cats = new ArrayCollection();
+        $this->conquetes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -49,4 +52,18 @@ class Caractere
     {
         return $this->cats;
     }
+    public function getConquetes(): Collection
+    {
+        return $this->conquetes;
+    }
+    public function addConquete(Conquete $conquete): self
+{
+    if (!$this->conquetes->contains($conquete)) {
+        $this->conquetes->add($conquete);
+        $conquete->addCaractere($this); // synchroniser l'autre côté
+    }
+    return $this;
+}
+
+    
 }

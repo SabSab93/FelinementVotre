@@ -1,11 +1,11 @@
 <?php
-
 // src/Entity/Conquete.php
 namespace App\Entity;
 
 use App\Repository\ConqueteRepository;
 use Doctrine\ORM\Mapping as ORM;
-use App\Enum\Gender;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: ConqueteRepository::class)]
 class Conquete
@@ -25,11 +25,23 @@ class Conquete
     #[ORM\Column]
     private int $imageId;
 
-    // **Nouveau** : sexe
-    #[ORM\Column(type: "string", length: 10)]
+    #[ORM\Column(length: 10)]
     private string $gender;
 
-    // … getters & setters …
+    /**
+     * Côté "owning" de la relation ManyToMany
+     */
+    #[ORM\ManyToMany(targetEntity: Caractere::class, inversedBy: 'conquetes')]
+    #[ORM\JoinTable(name: 'conquete_caractere')]
+    private Collection $caracteres;
+    
+
+    public function __construct()
+    {
+        $this->caracteres = new ArrayCollection();
+    }
+
+    // —— Getters & Setters —— //
 
     public function getId(): ?int
     {
@@ -76,7 +88,6 @@ class Conquete
         return $this;
     }
 
-    // getter/setter pour gender
     public function getGender(): string
     {
         return $this->gender;
@@ -84,6 +95,30 @@ class Conquete
     public function setGender(string $gender): self
     {
         $this->gender = $gender;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Caractere>
+     */
+    public function getCaracteres(): Collection
+    {
+        return $this->caracteres;
+    }
+
+    public function addCaractere(Caractere $caractere): self
+    {
+        if (!$this->caracteres->contains($caractere)) {
+            $this->caracteres->add($caractere);
+            // Synchroniser le côté inverse si nécessaire
+            $caractere->addConquete($this);
+        }
+        return $this;
+    }
+    
+    public function removeCaractere(Caractere $c): self
+    {
+        $this->caracteres->removeElement($c);
         return $this;
     }
 }

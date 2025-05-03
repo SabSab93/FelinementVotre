@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Repository\ConqueteRepository;
+use App\Entity\Conquete;
+
 
 class CatsController extends AbstractController
 {
@@ -25,16 +28,46 @@ class CatsController extends AbstractController
      * Liste des chats de l'utilisateur connecté
      */
     #[Route('/cats', name: 'app_list_cats', methods: ['GET'])]
-    public function listCats(UserInterface $user): Response
-    {
+    public function listCats(
+        UserInterface $user,
+        ConqueteRepository $conqueteRepo
+    ): Response {
         $cats = $this->entityManager
             ->getRepository(Cats::class)
             ->findBy(['user' => $user]);
 
+        $matches = [];
+        foreach ($cats as $cat) {
+            // ids des traits du chat
+            $catTraitIds = array_map(
+                fn($t) => $t->getId(),
+                $cat->getCaracteres()->toArray()
+            );
+            $matchList = [];
+            foreach ($conqueteRepo->findAll() as $conq) {
+                $conqTraitIds = array_map(
+                    fn($t) => $t->getId(),
+                    $conq->getCaracteres()->toArray()
+                );
+                $common = array_intersect($catTraitIds, $conqTraitIds);
+                $score = count($catTraitIds)
+                    ? round(count($common) / count($catTraitIds) * 100)
+                    : 0
+                ;
+                $matchList[] = [
+                    'conquete' => $conq,
+                    'score'    => $score,
+                ];
+            }
+            $matches[$cat->getId()] = $matchList;
+        }
+
         return $this->render('cats/list.html.twig', [
-            'cats' => $cats,
+            'cats'    => $cats,
+            'matches' => $matches,
         ]);
     }
+
 
     /**
      * Formulaire d'ajout de chat (GET)
@@ -165,4 +198,12 @@ class CatsController extends AbstractController
 
         return $this->json(['message' => 'Chat mis à jour avec succès.'], 200);
     }
+    #[Route('/cats/{cat}/match/{conquete}', name: 'app_cat_match', methods: ['POST'])]
+public function matchCat(Cats $cat, Conquete $conquete): Response
+{
+    $cat->addConquete($conquete);
+    $this->entityManager->flush();
+
+    return $this->json(['success' => true]);
+}
 }
