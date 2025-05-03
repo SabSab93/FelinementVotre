@@ -93,7 +93,6 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    // Implémentation des méthodes de UserInterface
 
     public function getUserIdentifier(): string
     {
@@ -107,7 +106,6 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void
     {
-        // Cette méthode est utilisée pour supprimer des données sensibles si nécessaire
     }
 
     /**

@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Repository\ConqueteRepository;
+use App\Entity\Conquete;
+
 
 class CatsController extends AbstractController
 {
@@ -21,25 +24,35 @@ class CatsController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
-    /**
-     * Liste des chats de l'utilisateur connecté
-     */
+
     #[Route('/cats', name: 'app_list_cats', methods: ['GET'])]
-    public function listCats(UserInterface $user): Response
+    public function listCats(UserInterface $user, ConqueteRepository $conqueteRepo): Response
     {
         $cats = $this->entityManager
-            ->getRepository(Cats::class)
-            ->findBy(['user' => $user]);
+                     ->getRepository(Cats::class)
+                     ->findBy(['user' => $user]);
+
+        $allMatches = [];
+        foreach ($cats as $cat) {
+            $catTraitIds = array_map(fn($t) => $t->getId(), $cat->getCaracteres()->toArray());
+            $matchList = [];
+            foreach ($conqueteRepo->findAll() as $conq) {
+                $conqTraitIds = array_map(fn($t) => $t->getId(), $conq->getCaracteres()->toArray());
+                $common = array_intersect($catTraitIds, $conqTraitIds);
+                $score = $catTraitIds
+                    ? round(count($common) / count($catTraitIds) * 100)
+                    : 0;
+                $matchList[] = ['conquete' => $conq, 'score' => $score];
+            }
+            $allMatches[$cat->getId()] = $matchList;
+        }
 
         return $this->render('cats/list.html.twig', [
-            'cats' => $cats,
+            'cats'    => $cats,
+            'matches' => $allMatches,
         ]);
     }
 
-    /**
-     * Formulaire d'ajout de chat (GET)
-     * On fournit la liste des traits de caractère pour cocher
-     */
     #[Route('/cats/add/form', name: 'app_add_cat_form', methods: ['GET'])]
     public function addCatForm(CaractereRepository $caractereRepo): Response
     {
@@ -50,10 +63,7 @@ class CatsController extends AbstractController
         ]);
     }
 
-    /**
-     * Traitement de l'ajout de chat (POST)
-     * On lit les caractères cochés et on les associe au chat
-     */
+
     #[Route('/cats/add', name: 'app_add_cat', methods: ['POST'])]
     public function addCat(
         Request $request,
@@ -102,7 +112,7 @@ class CatsController extends AbstractController
             ->setImageId($imageId)
             ->setUser($user);
 
-        // Association des traits de caractère cochés
+
         foreach ($caractereIds as $id) {
             if ($car = $caractereRepo->find((int)$id)) {
                 $cat->addCaractere($car);
@@ -117,9 +127,7 @@ class CatsController extends AbstractController
         ]);
     }
 
-    /**
-     * Page de succès après création
-     */
+ 
     #[Route('/cats/success/{id}', name: 'app_cat_success', methods: ['GET'])]
     public function success(Cats $cat): Response
     {
@@ -128,9 +136,7 @@ class CatsController extends AbstractController
         ]);
     }
 
-    /**
-     * Mise à jour d'un chat (non modifié ici)
-     */
+ 
     #[Route('/cats/update/{id}', name: 'app_update_cat', methods: ['POST'])]
     public function updateCat(
         Request $request,
@@ -164,5 +170,13 @@ class CatsController extends AbstractController
         $this->entityManager->flush();
 
         return $this->json(['message' => 'Chat mis à jour avec succès.'], 200);
+    }
+    #[Route('/cats/{cat}/match/{conquete}', name: 'app_cat_match', methods: ['POST'])]
+    public function matchCat(Cats $cat, Conquete $conquete): Response
+    {
+        $cat->addConquete($conquete);
+        $this->entityManager->flush();
+
+        return $this->json(['success' => true]);
     }
 }

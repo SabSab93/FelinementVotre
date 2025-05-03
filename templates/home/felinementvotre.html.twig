@@ -1,4 +1,4 @@
-{# templates/home/felinementvotre.html.twig #}
+
 {% extends 'base.html.twig' %}
 
 {% block title %}🐾 Bienvenue sur FélinementVôtre 🐾{% endblock %}
@@ -37,22 +37,30 @@
   .btn-kawaii:hover {
     background-color: #ff69b4;
   }
+  .btn-purple {
+    background-color: #c084fc;
+    color: white;
+    border-radius: .75rem;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+  }
+  .btn-purple:hover {
+    background-color: #8b5cf6;
+  }
 
-  /* Carousel “tout l’image” en largeur */
+
+
   #chatCarousel {
     max-width: 400px;
     margin: 2rem auto;
   }
   #chatCarousel .carousel-inner {
-    height: auto !important;           /* laisse la hauteur s’ajuster */
-  }
-  #chatCarousel .carousel-item {
-    position: relative;                /* supprime l’absolu pour auto-height */
+
   }
   #chatCarousel .carousel-item img {
-    width: 100%;                       /* image en pleine largeur */
-    height: auto;                      /* hauteur auto */
-    object-fit: contain;               /* tout l’image, mêmes proportions */
+    width: 100%;
+    height: auto;
+    object-fit: contain;
     display: block;
     margin: 0 auto;
     border-radius: 1rem;
@@ -61,6 +69,7 @@
     background: rgba(255,255,255,0.8);
     border-radius: .75rem;
     color: #6d214f;
+    padding: .5rem;
   }
 </style>
 {% endblock %}
@@ -70,60 +79,77 @@
     <h1>🐱 Trouve l’amour de ton félin ! 🐱</h1>
     <img src="{{ asset('images/cat_homepage/kisscat.png') }}"
          alt="Deux chats qui s'embrassent"
-         class="img-fluid my-3">
-    <p class="lead">
-      Bienvenue {{ app.user ? app.user.name ~ ' !' : 'sur FélinementVôtre !' }}
-    </p>
+         class="img-fluid my-3" style="max-width:400px;">
+    <p class="lead">Bienvenue {{ app.user.name }} !</p>
   </div>
 
   <div class="container text-center">
-    {% if app.user %}
-      <div class="mb-4">
-        <a href="{{ path('app_list_cats') }}" class="btn btn-kawaii me-2">
-          Voir mes chats
-        </a>
-        <a href="{{ path('app_add_cat_form') }}" class="btn btn-success">
-          Ajouter un nouveau chat
-        </a>
-      </div>
+    <div class="mb-4">
+      <a href="{{ path('app_list_cats') }}" class="btn btn-kawaii me-2">Voir mes chats</a>
+      <a href="{{ path('app_add_cat_form') }}" class="btn btn-purple">Ajouter un nouveau chat</a>
+    </div>
 
-      {% if app.user.cats|length > 0 %}
-        <div id="chatCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
-          <div class="carousel-inner">
+    {% if app.user.cats|length > 0 %}
+
+      <button class="btn btn-kawaii mb-4" data-bs-toggle="modal" data-bs-target="#selectCatModal">
+        💘 Trouver l’amour pour mon chat
+      </button>
+
+   
+      <div id="chatCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+      
+      </div>
+    {% else %}
+      <p>Tu n'as encore inscrit aucun chat. Commence maintenant ! 🐱</p>
+    {% endif %}
+  </div>
+
+
+  <div class="modal fade" id="selectCatModal" tabindex="-1" aria-labelledby="selectCatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="selectCatModalLabel">Choisis ton félin</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
             {% for cat in app.user.cats %}
-              <div class="carousel-item {{ loop.first ? 'active' : '' }}">
-                <img src="{{ asset('images/cats/image_' ~ cat.imageId ~ '.jpg') }}"
-                     alt="Image de {{ cat.name }}">
-                <div class="carousel-caption d-none d-md-block p-3">
-                  <h5>{{ cat.name }}, {{ cat.age }} ans</h5>
-                  <p>{{ cat.description ?: 'Ce félin est mystérieux…' }}</p>
+              <div class="col-6 text-center mb-3">
+                <div class="card border-0">
+                  <img src="{{ asset('images/cats/image_' ~ cat.imageId ~ '.jpg') }}"
+                       class="card-img-top rounded"
+                       alt="{{ cat.name }}"
+                       style="height:80px; object-fit:cover;">
+                  <div class="card-body p-2">
+                    <h6 class="card-title mb-1">{{ cat.name }}</h6>
+                    <button class="btn btn-sm btn-kawaii select-cat-btn"
+                            data-cat-id="{{ cat.id }}">
+                      Choisir
+                    </button>
+                  </div>
                 </div>
               </div>
             {% endfor %}
           </div>
-          <button class="carousel-control-prev" type="button"
-                  data-bs-target="#chatCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Précédent</span>
-          </button>
-          <button class="carousel-control-next" type="button"
-                  data-bs-target="#chatCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Suivant</span>
-          </button>
         </div>
-      {% else %}
-        <p>Tu n'as encore inscrit aucun chat. Commence maintenant ! 🐱</p>
-      {% endif %}
-    {% else %}
-      <p>
-        <a href="{{ path('app_login') }}" class="btn btn-kawaii me-2">Connecte-toi</a>
-        ou
-        <a href="{{ path('app_register_form') }}" class="btn btn-secondary">
-          inscris-toi
-        </a>
-        pour trouver l’âme sœur de ton félin&nbsp;!
-      </p>
-    {% endif %}
+      </div>
+    </div>
   </div>
+
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    document.querySelectorAll('.select-cat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const catId = btn.dataset.catId;
+        const modalEl = document.getElementById('selectCatModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+        window.location.href = '{{ path("app_conquete_match", {"catId": "CATID"}) }}'.replace('CATID', catId);
+      });
+    });
+  </script>
 {% endblock %}

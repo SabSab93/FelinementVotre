@@ -13,5 +13,4 @@ class ConqueteRepository extends ServiceEntityRepository
         parent::__construct($registry, Conquete::class);
     }
 
-    // ici tu pourras ajouter tes méthodes de recherche…
 }
